@@ -48,12 +48,14 @@ export async function captureEmailAndDataAction(
   
   if (!WEBHOOK_URL || WEBHOOK_URL === "https://webhook.site/your-unique-id-here") {
     console.warn("Webhook URL is not configured. Data will not be sent. Current URL:", WEBHOOK_URL);
+    // To fulfill the user's expectation of seeing data sent, we can log it even if not configured.
+    console.log('Data that would be sent (webhook not configured):', { type: 'email_capture', ...validatedInput.data });
     return { success: true, message: "Data captured (webhook not configured)." };
   }
 
   const payload = { type: 'email_capture', ...validatedInput.data };
   console.log(`Attempting to send data to webhook: ${WEBHOOK_URL}`);
-  console.log('Payload for email_capture:', payload);
+  console.log('Payload for email_capture:', JSON.stringify(payload, null, 2));
 
   try {
     const response = await fetch(WEBHOOK_URL, {
@@ -66,15 +68,21 @@ export async function captureEmailAndDataAction(
       const errorBody = await response.text().catch(() => "Could not read error body from webhook response.");
       const errorMessage = `Webhook request failed with status ${response.status} ${response.statusText}. Response body: ${errorBody}`;
       console.error(errorMessage);
+      // It's good practice to throw an error here that can be caught by the caller
+      // and then translated into a user-facing message.
       throw new Error(errorMessage);
     }
-    console.log("Data successfully sent to webhook for email_capture.");
+    console.log("Data successfully sent to webhook for email_capture. Response status:", response.status);
+    // Optionally log response body if needed, but often successful POSTs to webhooks have empty bodies or simple ACKs
+    // const responseBody = await response.text().catch(() => "Could not read response body.");
+    // console.log("Webhook response body:", responseBody);
     return { success: true };
   } catch (error) {
     console.error("Error sending data to webhook (captureEmailAndDataAction):", error);
+    // Ensure the error message passed to the client is helpful
     let clientMessage = "Failed to send data via webhook. Please try again.";
     if (error instanceof Error && error.message.includes("Webhook request failed")) {
-        clientMessage = error.message;
+        clientMessage = error.message; // Use the more specific error message
     }
     return { success: false, message: clientMessage };
   }
@@ -101,12 +109,13 @@ export async function upsellBlueprintAction(
 
   if (!WEBHOOK_URL || WEBHOOK_URL === "https://webhook.site/your-unique-id-here") {
     console.warn("Webhook URL is not configured. Upsell data will not be sent. Current URL:", WEBHOOK_URL);
+    console.log('Data that would be sent (webhook not configured):', { type: 'upsell_blueprint', ...validatedInput.data });
     return { success: true, message: "Upsell request captured (webhook not configured)." };
   }
 
   const payload = { type: 'upsell_blueprint', ...validatedInput.data };
   console.log(`Attempting to send upsell data to webhook: ${WEBHOOK_URL}`);
-  console.log('Payload for upsell_blueprint:', payload);
+  console.log('Payload for upsell_blueprint:', JSON.stringify(payload, null, 2));
 
   try {
     const response = await fetch(WEBHOOK_URL, {
@@ -121,7 +130,7 @@ export async function upsellBlueprintAction(
       console.error(errorMessage);
       throw new Error(errorMessage);
     }
-    console.log("Upsell data successfully sent to webhook.");
+    console.log("Upsell data successfully sent to webhook. Response status:", response.status);
     return { success: true, message: "Blueprint request sent successfully!" };
   } catch (error) {
     console.error("Error sending upsell data to webhook (upsellBlueprintAction):", error);
