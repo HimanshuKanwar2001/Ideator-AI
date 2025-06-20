@@ -1,3 +1,4 @@
+
 'use server';
 
 import { z } from 'zod';
@@ -46,26 +47,36 @@ export async function captureEmailAndDataAction(
   }
   
   if (!WEBHOOK_URL || WEBHOOK_URL === "https://webhook.site/your-unique-id-here") {
-    console.warn("Webhook URL is not configured. Data will not be sent.");
-    // For this exercise, we'll simulate success even if webhook is not set,
-    // but in a real app, you might want to return an error or specific status.
+    console.warn("Webhook URL is not configured. Data will not be sent. Current URL:", WEBHOOK_URL);
     return { success: true, message: "Data captured (webhook not configured)." };
   }
+
+  const payload = { type: 'email_capture', ...validatedInput.data };
+  console.log(`Attempting to send data to webhook: ${WEBHOOK_URL}`);
+  console.log('Payload for email_capture:', payload);
 
   try {
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'email_capture', ...validatedInput.data }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      throw new Error(`Webhook failed with status ${response.status}`);
+      const errorBody = await response.text().catch(() => "Could not read error body from webhook response.");
+      const errorMessage = `Webhook request failed with status ${response.status} ${response.statusText}. Response body: ${errorBody}`;
+      console.error(errorMessage);
+      throw new Error(errorMessage);
     }
+    console.log("Data successfully sent to webhook for email_capture.");
     return { success: true };
   } catch (error) {
-    console.error("Error sending data to webhook:", error);
-    return { success: false, message: "Failed to send data. Please try again." };
+    console.error("Error sending data to webhook (captureEmailAndDataAction):", error);
+    let clientMessage = "Failed to send data via webhook. Please try again.";
+    if (error instanceof Error && error.message.includes("Webhook request failed")) {
+        clientMessage = error.message;
+    }
+    return { success: false, message: clientMessage };
   }
 }
 
@@ -89,23 +100,36 @@ export async function upsellBlueprintAction(
   }
 
   if (!WEBHOOK_URL || WEBHOOK_URL === "https://webhook.site/your-unique-id-here") {
-    console.warn("Webhook URL is not configured. Upsell data will not be sent.");
+    console.warn("Webhook URL is not configured. Upsell data will not be sent. Current URL:", WEBHOOK_URL);
     return { success: true, message: "Upsell request captured (webhook not configured)." };
   }
+
+  const payload = { type: 'upsell_blueprint', ...validatedInput.data };
+  console.log(`Attempting to send upsell data to webhook: ${WEBHOOK_URL}`);
+  console.log('Payload for upsell_blueprint:', payload);
 
   try {
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'upsell_blueprint', ...validatedInput.data }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      throw new Error(`Webhook failed with status ${response.status}`);
+      const errorBody = await response.text().catch(() => "Could not read error body from webhook response.");
+      const errorMessage = `Webhook request failed with status ${response.status} ${response.statusText}. Response body: ${errorBody}`;
+      console.error(errorMessage);
+      throw new Error(errorMessage);
     }
+    console.log("Upsell data successfully sent to webhook.");
     return { success: true, message: "Blueprint request sent successfully!" };
   } catch (error) {
-    console.error("Error sending upsell data to webhook:", error);
-    return { success: false, message: "Failed to send blueprint request. Please try again." };
+    console.error("Error sending upsell data to webhook (upsellBlueprintAction):", error);
+    let clientMessage = "Failed to send blueprint request via webhook. Please try again.";
+    if (error instanceof Error && error.message.includes("Webhook request failed")) {
+        clientMessage = error.message;
+    }
+    return { success: false, message: clientMessage };
   }
 }
+
