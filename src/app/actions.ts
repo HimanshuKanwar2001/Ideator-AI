@@ -57,32 +57,37 @@ export async function captureEmailAndDataAction(
   console.log(`Attempting to send data to webhook: ${WEBHOOK_URL}`);
   console.log('Payload for email_capture:', JSON.stringify(payload, null, 2));
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+
   try {
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorBody = await response.text().catch(() => "Could not read error body from webhook response.");
       const errorMessage = `Webhook request failed with status ${response.status} ${response.statusText}. Response body: ${errorBody}`;
       console.error(errorMessage);
-      // It's good practice to throw an error here that can be caught by the caller
-      // and then translated into a user-facing message.
       throw new Error(errorMessage);
     }
     console.log("Data successfully sent to webhook for email_capture. Response status:", response.status);
-    // Optionally log response body if needed, but often successful POSTs to webhooks have empty bodies or simple ACKs
-    // const responseBody = await response.text().catch(() => "Could not read response body.");
-    // console.log("Webhook response body:", responseBody);
     return { success: true };
   } catch (error) {
+    clearTimeout(timeoutId);
     console.error("Error sending data to webhook (captureEmailAndDataAction):", error);
-    // Ensure the error message passed to the client is helpful
     let clientMessage = "Failed to send data via webhook. Please try again.";
-    if (error instanceof Error && error.message.includes("Webhook request failed")) {
-        clientMessage = error.message; // Use the more specific error message
+    if (error instanceof Error) {
+        if(error.name === 'AbortError') {
+             clientMessage = "The request to the webhook timed out. Please try again later.";
+        } else if (error.message.includes("Webhook request failed")) {
+            clientMessage = error.message;
+        }
     }
     return { success: false, message: clientMessage };
   }
@@ -117,12 +122,18 @@ export async function upsellBlueprintAction(
   console.log(`Attempting to send upsell data to webhook: ${WEBHOOK_URL}`);
   console.log('Payload for upsell_blueprint:', JSON.stringify(payload, null, 2));
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+
   try {
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorBody = await response.text().catch(() => "Could not read error body from webhook response.");
@@ -133,12 +144,16 @@ export async function upsellBlueprintAction(
     console.log("Upsell data successfully sent to webhook. Response status:", response.status);
     return { success: true, message: "Blueprint request sent successfully!" };
   } catch (error) {
+    clearTimeout(timeoutId);
     console.error("Error sending upsell data to webhook (upsellBlueprintAction):", error);
     let clientMessage = "Failed to send blueprint request via webhook. Please try again.";
-    if (error instanceof Error && error.message.includes("Webhook request failed")) {
-        clientMessage = error.message;
+    if (error instanceof Error) {
+        if(error.name === 'AbortError') {
+             clientMessage = "The request to the webhook timed out. Please try again later.";
+        } else if (error.message.includes("Webhook request failed")) {
+            clientMessage = error.message;
+        }
     }
     return { success: false, message: clientMessage };
   }
 }
-
