@@ -49,11 +49,11 @@ export async function captureEmailAndDataAction(
   if (!WEBHOOK_URL || WEBHOOK_URL === "https://webhook.site/your-unique-id-here") {
     console.warn("Webhook URL is not configured. Data will not be sent. Current URL:", WEBHOOK_URL);
     // To fulfill the user's expectation of seeing data sent, we can log it even if not configured.
-    console.log('Data that would be sent (webhook not configured):', { type: 'email_capture', ...validatedInput.data });
+    console.log('Data that would be sent (webhook not configured):', { type: 'email_capture', blueprint: 'no', ...validatedInput.data });
     return { success: true, message: "Data captured (webhook not configured)." };
   }
 
-  const payload = { type: 'email_capture', ...validatedInput.data };
+  const payload = { type: 'email_capture', blueprint: 'no', ...validatedInput.data };
   console.log(`Attempting to send data to webhook: ${WEBHOOK_URL}`);
   console.log('Payload for email_capture:', JSON.stringify(payload, null, 2));
 
@@ -114,11 +114,11 @@ export async function upsellBlueprintAction(
 
   if (!WEBHOOK_URL || WEBHOOK_URL === "https://webhook.site/your-unique-id-here") {
     console.warn("Webhook URL is not configured. Upsell data will not be sent. Current URL:", WEBHOOK_URL);
-    console.log('Data that would be sent (webhook not configured):', { type: 'upsell_blueprint', ...validatedInput.data });
+    console.log('Data that would be sent (webhook not configured):', { type: 'upsell_blueprint', blueprint: 'yes', ...validatedInput.data });
     return { success: true, message: "Upsell request captured (webhook not configured)." };
   }
 
-  const payload = { type: 'upsell_blueprint', ...validatedInput.data };
+  const payload = { type: 'upsell_blueprint', blueprint: 'yes', ...validatedInput.data };
   console.log(`Attempting to send upsell data to webhook: ${WEBHOOK_URL}`);
   console.log('Payload for upsell_blueprint:', JSON.stringify(payload, null, 2));
 
