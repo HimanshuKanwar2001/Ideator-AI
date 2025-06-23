@@ -39,3 +39,4 @@ export const CONTENT_THEMES = [
 // It's highly recommended to use an environment variable for this in a real application.
 // For example, process.env.NEXT_PUBLIC_WEBHOOK_URL
 export const WEBHOOK_URL = "https://n8n.superprofile.pro/webhook/cdd0ec7c-1bf7-46c6-a17e-cb2ad014dfc6";
+export const WEBHOOK_URL_TEST = "https://n8n.superprofile.pro/webhook-test/cdd0ec7c-1bf7-46c6-a17e-cb2ad014dfc6";

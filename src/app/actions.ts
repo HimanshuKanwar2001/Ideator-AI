@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 import { generateProductIdeas as aiGenerateProductIdeas, type GenerateProductIdeasOutput, type GenerateProductIdeasInput } from '@/ai/flows/generate-product-ideas';
-import { WEBHOOK_URL } from '@/lib/constants';
+import { WEBHOOK_URL, WEBHOOK_URL_TEST } from '@/lib/constants';
 
 const GenerateIdeasSchema = z.object({
   targetAudience: z.string().min(1, "Target audience is required."),
@@ -46,50 +46,66 @@ export async function captureEmailAndDataAction(
     return { success: false, message: validatedInput.error.errors.map(e => e.message).join(', ') };
   }
   
-  if (!WEBHOOK_URL || WEBHOOK_URL === "https://webhook.site/your-unique-id-here") {
-    console.warn("Webhook URL is not configured. Data will not be sent. Current URL:", WEBHOOK_URL);
-    // To fulfill the user's expectation of seeing data sent, we can log it even if not configured.
-    console.log('Data that would be sent (webhook not configured):', { type: 'email_capture', blueprint: 'no', ...validatedInput.data });
-    return { success: true, message: "Data captured (webhook not configured)." };
+  const payload = { type: 'email_capture', blueprint: 'no', ...validatedInput.data };
+  const webhooks = [WEBHOOK_URL, WEBHOOK_URL_TEST].filter(Boolean);
+
+  if (webhooks.length === 0) {
+    console.warn("No webhook URLs are configured. Data will not be sent.");
+    console.log('Data that would be sent (no webhooks configured):', payload);
+    return { success: true, message: "Data captured (webhooks not configured)." };
   }
 
-  const payload = { type: 'email_capture', blueprint: 'no', ...validatedInput.data };
-  console.log(`Attempting to send data to webhook: ${WEBHOOK_URL}`);
-  console.log('Payload for email_capture:', JSON.stringify(payload, null, 2));
+  const results = await Promise.allSettled(webhooks.map(url => {
+    console.log(`Attempting to send data to webhook: ${url}`);
+    console.log('Payload for email_capture:', JSON.stringify(payload, null, 2));
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
-
-  try {
-    const response = await fetch(WEBHOOK_URL, {
+    return fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       signal: controller.signal
-    });
+    }).finally(() => clearTimeout(timeoutId));
+  }));
+  
+  const failures: string[] = [];
+  let successes = 0;
 
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errorBody = await response.text().catch(() => "Could not read error body from webhook response.");
-      const errorMessage = `Webhook request failed with status ${response.status} ${response.statusText}. Response body: ${errorBody}`;
-      console.error(errorMessage);
-      throw new Error(errorMessage);
-    }
-    console.log("Data successfully sent to webhook for email_capture. Response status:", response.status);
-    return { success: true };
-  } catch (error) {
-    clearTimeout(timeoutId);
-    console.error("Error sending data to webhook (captureEmailAndDataAction):", error);
-    let clientMessage = "Failed to send data via webhook. Please try again.";
-    if (error instanceof Error) {
-        if(error.name === 'AbortError') {
-             clientMessage = "The request to the webhook timed out. Please try again later.";
-        } else if (error.message.includes("Webhook request failed")) {
-            clientMessage = error.message;
+  for (const [index, result] of results.entries()) {
+    const url = webhooks[index];
+    if (result.status === 'fulfilled') {
+      const response = result.value;
+      if (!response.ok) {
+        const errorBody = await response.text().catch(() => "Could not read error body from webhook response.");
+        const errorMessage = `Webhook request to ${url} failed with status ${response.status} ${response.statusText}. Response body: ${errorBody}`;
+        console.error(errorMessage);
+        failures.push(errorMessage);
+      } else {
+        console.log(`Data successfully sent to webhook: ${url}. Status:`, response.status);
+        successes++;
+      }
+    } else {
+      let errorMessage = `Failed to send data to webhook ${url}.`;
+      if (result.reason instanceof Error) {
+        if(result.reason.name === 'AbortError') {
+             errorMessage = `The request to the webhook ${url} timed out.`;
+        } else if (result.reason.message.includes("Webhook request failed")) {
+            errorMessage = result.reason.message;
         }
+      }
+      console.error(errorMessage, result.reason);
+      failures.push(errorMessage);
     }
-    return { success: false, message: clientMessage };
+  }
+
+  if (successes > 0) {
+    if (failures.length > 0) {
+        console.warn(`Partially succeeded in sending webhook data. Failures: ${failures.join('; ')}`);
+    }
+    return { success: true };
+  } else {
+    return { success: false, message: `All webhook requests failed. Errors: ${failures.join('; ')}` };
   }
 }
 
@@ -112,48 +128,66 @@ export async function upsellBlueprintAction(
     return { success: false, message: validatedInput.error.errors.map(e => e.message).join(', ') };
   }
 
-  if (!WEBHOOK_URL || WEBHOOK_URL === "https://webhook.site/your-unique-id-here") {
-    console.warn("Webhook URL is not configured. Upsell data will not be sent. Current URL:", WEBHOOK_URL);
-    console.log('Data that would be sent (webhook not configured):', { type: 'upsell_blueprint', blueprint: 'yes', ...validatedInput.data });
-    return { success: true, message: "Upsell request captured (webhook not configured)." };
+  const payload = { type: 'upsell_blueprint', blueprint: 'yes', ...validatedInput.data };
+  const webhooks = [WEBHOOK_URL, WEBHOOK_URL_TEST].filter(Boolean);
+
+  if (webhooks.length === 0) {
+    console.warn("No webhook URLs configured. Upsell data will not be sent.");
+    console.log('Upsell data that would be sent (no webhooks configured):', payload);
+    return { success: true, message: "Upsell request captured (webhooks not configured)." };
   }
 
-  const payload = { type: 'upsell_blueprint', blueprint: 'yes', ...validatedInput.data };
-  console.log(`Attempting to send upsell data to webhook: ${WEBHOOK_URL}`);
-  console.log('Payload for upsell_blueprint:', JSON.stringify(payload, null, 2));
+  const results = await Promise.allSettled(webhooks.map(url => {
+    console.log(`Attempting to send upsell data to webhook: ${url}`);
+    console.log('Payload for upsell_blueprint:', JSON.stringify(payload, null, 2));
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
-
-  try {
-    const response = await fetch(WEBHOOK_URL, {
+    return fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
-      signal: controller.signal
-    });
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timeoutId));
+  }));
+  
+  const failures: string[] = [];
+  let successes = 0;
 
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errorBody = await response.text().catch(() => "Could not read error body from webhook response.");
-      const errorMessage = `Webhook request failed with status ${response.status} ${response.statusText}. Response body: ${errorBody}`;
-      console.error(errorMessage);
-      throw new Error(errorMessage);
-    }
-    console.log("Upsell data successfully sent to webhook. Response status:", response.status);
-    return { success: true, message: "Blueprint request sent successfully!" };
-  } catch (error) {
-    clearTimeout(timeoutId);
-    console.error("Error sending upsell data to webhook (upsellBlueprintAction):", error);
-    let clientMessage = "Failed to send blueprint request via webhook. Please try again.";
-    if (error instanceof Error) {
-        if(error.name === 'AbortError') {
-             clientMessage = "The request to the webhook timed out. Please try again later.";
-        } else if (error.message.includes("Webhook request failed")) {
-            clientMessage = error.message;
+  for (const [index, result] of results.entries()) {
+    const url = webhooks[index];
+    if (result.status === 'fulfilled') {
+      const response = result.value;
+      if (!response.ok) {
+        const errorBody = await response.text().catch(() => "Could not read error body from webhook response.");
+        const errorMessage = `Upsell webhook request to ${url} failed with status ${response.status} ${response.statusText}. Response body: ${errorBody}`;
+        console.error(errorMessage);
+        failures.push(errorMessage);
+      } else {
+        console.log(`Upsell data successfully sent to webhook: ${url}. Status:`, response.status);
+        successes++;
+      }
+    } else {
+      let errorMessage = `Failed to send upsell data to webhook ${url}.`;
+      if (result.reason instanceof Error) {
+        if(result.reason.name === 'AbortError') {
+             errorMessage = `The request to the upsell webhook ${url} timed out.`;
+        } else if (result.reason.message.includes("Webhook request failed")) {
+            errorMessage = result.reason.message;
         }
+      }
+      console.error(errorMessage, result.reason);
+      failures.push(errorMessage);
     }
-    return { success: false, message: clientMessage };
+  }
+
+  if (successes > 0) {
+    const message = "Blueprint request sent successfully!";
+    if (failures.length > 0) {
+        console.warn(`Partially succeeded in sending upsell webhook data. Failures: ${failures.join('; ')}`);
+    }
+    return { success: true, message };
+  } else {
+    return { success: false, message: `All upsell webhook requests failed. Errors: ${failures.join('; ')}` };
   }
 }
