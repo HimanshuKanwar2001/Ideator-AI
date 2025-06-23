@@ -10,7 +10,6 @@ import { LoadingState } from "@/components/ideator/LoadingState";
 import { generateIdeasAction, captureEmailAndDataAction, upsellBlueprintAction } from "./actions";
 import type { GenerateProductIdeasOutput } from "@/ai/flows/generate-product-ideas";
 import { useToast } from "@/hooks/use-toast";
-import { BrainCircuit } from "lucide-react";
 
 type AppState = "idle" | "loadingIdeas" | "emailCapture" | "submittingEmail" | "resultsVisible" | "upselling";
 
@@ -97,15 +96,8 @@ export default function IdeatorPage() {
   const isUpselling = appState === "upselling";
 
   return (
-    <main className="container mx-auto px-4 py-8 md:py-16 flex flex-col items-center min-h-screen">
+    <main className="container mx-auto px-4 py-8 md:py-16 flex flex-col items-center min-h-screen justify-center">
       <div className="w-full max-w-2xl space-y-12">
-        <header className="text-center space-y-2">
-          <BrainCircuit className="mx-auto h-16 w-16 text-primary" />
-          <h1 className="text-4xl md:text-5xl font-bold font-headline">Ideator AI</h1>
-          <p className="text-lg text-muted-foreground">
-            Unlock innovative product, service, and membership ideas powered by AI.
-          </p>
-        </header>
 
         {appState === "idle" && (
           <section aria-labelledby="selection-form-heading">
@@ -155,10 +147,6 @@ export default function IdeatorPage() {
           </section>
         )}
       </div>
-       <footer className="mt-16 text-center text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Ideator AI. Powered by Next.js and Genkit.</p>
-        <p>Remember to configure your WEBHOOK_URL in <code>src/lib/constants.ts</code> or via environment variables.</p>
-      </footer>
     </main>
   );
 }
