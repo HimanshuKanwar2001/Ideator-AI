@@ -10,6 +10,16 @@ import { LoadingState } from "@/components/ideator/LoadingState";
 import { generateIdeasAction, captureEmailAndDataAction, upsellBlueprintAction } from "./actions";
 import type { GenerateProductIdeasOutput } from "@/ai/flows/generate-product-ideas";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 
 type AppState = "idle" | "loadingIdeas" | "emailCapture" | "submittingEmail" | "resultsVisible" | "upselling";
 
@@ -30,6 +40,8 @@ export default function IdeatorPage() {
   const [generatedIdeas, setGeneratedIdeas] = useState<GenerateProductIdeasOutput | null>(null);
   const [currentSelections, setCurrentSelections] = useState<SelectionFormValues | null>(null);
   const [currentEmail, setCurrentEmail] = useState<string | null>(null);
+  const [showBlueprintDialog, setShowBlueprintDialog] = useState(false);
+  const [blueprintDialogMessage, setBlueprintDialogMessage] = useState("");
   const { toast } = useToast();
 
   const handleSelectionSubmit = async (data: SelectionFormValues) => {
@@ -80,7 +92,8 @@ export default function IdeatorPage() {
         ideas: generatedIdeas,
       });
        if (result.success) {
-        toast({ title: "Blueprint Requested!", description: result.message || "Your request has been sent." });
+        setBlueprintDialogMessage(result.message || "Your blueprint has been sent to your email!");
+        setShowBlueprintDialog(true);
       } else {
         throw new Error(result.message || "Failed to request blueprint.");
       }
@@ -147,6 +160,22 @@ export default function IdeatorPage() {
           </section>
         )}
       </div>
+
+       <AlertDialog open={showBlueprintDialog} onOpenChange={setShowBlueprintDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Blueprint Request Sent!</AlertDialogTitle>
+            <AlertDialogDescription>
+              {blueprintDialogMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowBlueprintDialog(false)}>
+              Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }

@@ -1,6 +1,7 @@
 
 'use server';
 
+import { headers } from 'next/headers';
 import { z } from 'zod';
 import { generateProductIdeas as aiGenerateProductIdeas, type GenerateProductIdeasOutput, type GenerateProductIdeasInput } from '@/ai/flows/generate-product-ideas';
 import { WEBHOOK_URL, WEBHOOK_URL_TEST } from '@/lib/constants';
@@ -10,9 +11,26 @@ const GenerateIdeasSchema = z.object({
   contentTheme: z.string().min(1, "Content theme is required."),
 });
 
+// Rate limiting configuration
+const RATE_LIMIT_COUNT = 5; // Max requests
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
+const rateLimitStore = new Map<string, number[]>();
+
 export async function generateIdeasAction(
   input: z.infer<typeof GenerateIdeasSchema>
 ): Promise<GenerateProductIdeasOutput> {
+  const ip = headers().get('x-forwarded-for') ?? '127.0.0.1';
+  
+  const now = Date.now();
+  const userRequests = rateLimitStore.get(ip) ?? [];
+  
+  const recentRequests = userRequests.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
+
+  if (recentRequests.length >= RATE_LIMIT_COUNT) {
+    rateLimitStore.set(ip, recentRequests);
+    throw new Error("You have reached the request limit. Please try again in an hour.");
+  }
+  
   const validatedInput = GenerateIdeasSchema.safeParse(input);
   if (!validatedInput.success) {
     throw new Error(validatedInput.error.errors.map(e => e.message).join(', '));
@@ -20,6 +38,7 @@ export async function generateIdeasAction(
 
   try {
     const ideas = await aiGenerateProductIdeas(validatedInput.data as GenerateProductIdeasInput);
+    rateLimitStore.set(ip, [...recentRequests, now]);
     return ideas;
   } catch (error) {
     console.error("Error generating ideas:", error);
@@ -182,7 +201,7 @@ export async function upsellBlueprintAction(
   }
 
   if (successes > 0) {
-    const message = "Blueprint request sent successfully!";
+    const message = "Your blueprint has been sent to your email! Check your inbox for the details.";
     if (failures.length > 0) {
         console.warn(`Partially succeeded in sending upsell webhook data. Failures: ${failures.join('; ')}`);
     }
