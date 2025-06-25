@@ -96,7 +96,7 @@ export default function IdeatorPage() {
   const isUpselling = appState === "upselling";
 
   return (
-    <main className="container mx-auto px-4 py-8 md:py-16 flex flex-col items-center min-h-screen justify-center">
+    <main className="container mx-auto px-4 py-8 flex flex-col items-center min-h-screen md:justify-center">
       <div className="w-full max-w-2xl space-y-12">
 
         {appState === "idle" && (
@@ -118,7 +118,7 @@ export default function IdeatorPage() {
              <div className="relative">
                 <ResultsSection ideas={generatedIdeas} onUpsell={handleUpsell} isUpselling={isUpselling} isBlurred={true} />
                 <div className="absolute inset-0 flex items-center justify-center z-10 bg-background/50 backdrop-blur-sm">
-                   <div className="w-full max-w-md">
+                   <div className="w-full max-w-md p-4">
                      <EmailCaptureForm onSubmit={handleEmailSubmit} isSubmitting={isSubmittingEmail} />
                    </div>
                 </div>
@@ -131,7 +131,7 @@ export default function IdeatorPage() {
             <div className="relative">
                 <ResultsSection ideas={generatedIdeas} onUpsell={handleUpsell} isUpselling={isUpselling} isBlurred={true} />
                  <div className="absolute inset-0 flex items-center justify-center z-10 bg-background/50 backdrop-blur-sm">
-                   <div className="w-full max-w-md">
+                   <div className="w-full max-w-md p-4">
                      <EmailCaptureForm onSubmit={handleEmailSubmit} isSubmitting={isSubmittingEmail} />
                    </div>
                 </div>
@@ -142,7 +142,7 @@ export default function IdeatorPage() {
 
         {(appState === "resultsVisible" || appState === "upselling") && generatedIdeas && (
           <section aria-labelledby="results-heading">
-            <h2 id="results-heading" className="text-3xl font-bold font-headline text-center mb-8">Your AI-Generated Ideas</h2>
+            <h2 id="results-heading" className="text-2xl md:text-3xl font-bold font-headline text-center mb-8">Your AI-Generated Ideas</h2>
             <ResultsSection ideas={generatedIdeas} onUpsell={handleUpsell} isUpselling={isUpselling} isBlurred={false} />
           </section>
         )}

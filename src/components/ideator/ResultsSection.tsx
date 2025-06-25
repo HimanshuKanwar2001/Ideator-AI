@@ -23,9 +23,9 @@ export function ResultsSection({ ideas, onUpsell, isUpselling, isBlurred }: Resu
         <IdeaCard title="Membership Idea" description={ideas.membershipIdea} IconComponent={Users} />
       </div>
       {!isBlurred && (
-        <div className="text-center mt-8 p-6 border rounded-lg shadow-lg bg-card">
-          <h3 className="text-2xl font-bold font-headline mb-3 text-primary">Ready to Launch?</h3>
-          <p className="text-muted-foreground mb-6">
+        <div className="text-center mt-8 p-4 md:p-6 border rounded-lg shadow-lg bg-card">
+          <h3 className="text-xl md:text-2xl font-bold font-headline mb-3 text-primary">Ready to Launch?</h3>
+          <p className="text-muted-foreground mb-6 text-sm md:text-base">
             Get a complete, step-by-step blueprint to bring these ideas to life! Our AI can generate a detailed plan including market research, feature lists, marketing strategies, and more.
           </p>
           <Button 
