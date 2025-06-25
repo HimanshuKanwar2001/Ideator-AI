@@ -18,9 +18,9 @@ const GenerateProductIdeasInputSchema = z.object({
 export type GenerateProductIdeasInput = z.infer<typeof GenerateProductIdeasInputSchema>;
 
 const GenerateProductIdeasOutputSchema = z.object({
-  productIdea: z.string().describe('An idea for a product.'),
-  serviceIdea: z.string().describe('An idea for a service.'),
-  membershipIdea: z.string().describe('An idea for a membership.'),
+  productIdea: z.string().describe('An idea for a digital product (e.g., an ebook, a template, a software tool).'),
+  serviceIdea: z.string().describe('An idea for an online service (e.g., coaching, consulting, a workshop).'),
+  membershipIdea: z.string().describe('An idea for an online membership (e.g., a private community on Telegram, exclusive content subscription).'),
 });
 export type GenerateProductIdeasOutput = z.infer<typeof GenerateProductIdeasOutputSchema>;
 
@@ -34,14 +34,13 @@ const prompt = ai.definePrompt({
   name: 'generateProductIdeasPrompt',
   input: {schema: GenerateProductIdeasInputSchema},
   output: {schema: GenerateProductIdeasOutputSchema},
-  prompt: `You are a creative product idea generator. Given a target audience and a content theme, you will generate a product idea, a service idea and a membership idea.
+  prompt: `You are a creative product idea generator specializing in digital-first concepts. Based on the provided target audience and content theme, generate three ideas:
+1. A Digital Product Idea (e.g., an ebook, software tool, or template).
+2. An Online Service Idea (e.g., coaching, consulting, or a workshop).
+3. An Online Membership Idea (e.g., a private community on a platform like Telegram or Discord, or an exclusive content subscription).
 
 Target Audience: {{{targetAudience}}}
-Content Theme: {{{contentTheme}}}
-
-Product Idea: 
-Service Idea:
-Membership Idea:`,
+Content Theme: {{{contentTheme}}}`,
 });
 
 const generateProductIdeasFlow = ai.defineFlow(
