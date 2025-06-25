@@ -38,7 +38,7 @@ export function EmailCaptureForm({ onSubmit, isSubmitting }: EmailCaptureFormPro
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-4 md:p-6 border rounded-lg shadow-lg bg-card">
-        <h3 className="text-base md:text-lg font-semibold font-headline text-center">Unlock Your AI-Generated Ideas!</h3>
+        <h3 className="text-base md:text-lg font-semibold font-headline text-center">Unlock Your Generated Ideas!</h3>
         <p className="text-sm text-muted-foreground text-center">Enter your email to reveal the product, service, and membership ideas tailored for you.</p>
         <FormField
           control={form.control}

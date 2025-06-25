@@ -142,7 +142,7 @@ export default function IdeatorPage() {
 
         {(appState === "resultsVisible" || appState === "upselling") && generatedIdeas && (
           <section aria-labelledby="results-heading">
-            <h2 id="results-heading" className="text-2xl md:text-3xl font-bold font-headline text-center mb-8">Your AI-Generated Ideas</h2>
+            <h2 id="results-heading" className="sr-only">Your Generated Ideas</h2>
             <ResultsSection ideas={generatedIdeas} onUpsell={handleUpsell} isUpselling={isUpselling} isBlurred={false} />
           </section>
         )}

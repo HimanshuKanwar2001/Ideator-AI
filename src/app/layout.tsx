@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Ideator AI',
-  description: 'Generate Product, Service, and Membership Ideas with AI',
+  title: 'Ideator',
+  description: 'Generate Product, Service, and Membership Ideas',
 };
 
 export default function RootLayout({

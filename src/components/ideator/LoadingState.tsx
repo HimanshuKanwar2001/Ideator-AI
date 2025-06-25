@@ -2,10 +2,10 @@
 
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useState } from "react";
-import { Bot } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 const loadingMessages = [
-  "Connecting to the AI Oracle...",
+  "Connecting to the Oracle...",
   "Analyzing your brilliant choices...",
   "Consulting the muses of innovation...",
   "Crafting unique product concepts...",
@@ -41,9 +41,9 @@ export function LoadingState() {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-6 p-8 border rounded-lg shadow-lg bg-card">
-      <Bot className="h-16 w-16 text-primary animate-bounce" />
+      <Sparkles className="h-16 w-16 text-primary animate-bounce" />
       <h2 className="text-2xl font-semibold font-headline text-center">
-        AI is Working Its Magic!
+        Working Its Magic!
       </h2>
       <p 
         className="text-muted-foreground text-center min-h-[2em]" 

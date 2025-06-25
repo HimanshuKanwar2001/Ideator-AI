@@ -26,7 +26,7 @@ export function ResultsSection({ ideas, onUpsell, isUpselling, isBlurred }: Resu
         <div className="text-center mt-8 p-4 md:p-6 border rounded-lg shadow-lg bg-card">
           <h3 className="text-xl md:text-2xl font-bold font-headline mb-3 text-primary">Ready to Launch?</h3>
           <p className="text-muted-foreground mb-6 text-sm md:text-base">
-            Get a complete, step-by-step blueprint to bring these ideas to life! Our AI can generate a detailed plan including market research, feature lists, marketing strategies, and more.
+            Get a complete, step-by-step blueprint to bring these ideas to life! A detailed plan can be generated including market research, feature lists, marketing strategies, and more.
           </p>
           <Button 
             onClick={onUpsell} 
@@ -42,7 +42,7 @@ export function ResultsSection({ ideas, onUpsell, isUpselling, isBlurred }: Resu
             ) : (
               <>
                 <Sparkles className="mr-2 h-5 w-5" />
-                Get Your AI Blueprint
+                Get Your Blueprint
               </>
             )}
           </Button>
