@@ -20,7 +20,7 @@ export type GenerateProductIdeasInput = z.infer<typeof GenerateProductIdeasInput
 const GenerateProductIdeasOutputSchema = z.object({
   productIdea: z.string().describe('A scalable digital product idea like an ebook, digital planner, or template pack, suitable for selling via online ads.'),
   serviceIdea: z.string().describe('An online service idea that can be delivered one-to-many, such as a paid webinar, an online workshop, or group consultation.'),
-  membershipIdea: z.string().describe('An online membership idea for recurring revenue, such as a private Telegram community or an exclusive content subscription.'),
+  membershipIdea: z.string().describe('An online membership idea for recurring revenue, which must be a private Telegram or Discord community, or an exclusive content subscription.'),
 });
 export type GenerateProductIdeasOutput = z.infer<typeof GenerateProductIdeasOutputSchema>;
 
@@ -38,7 +38,7 @@ const prompt = ai.definePrompt({
 
 1.  **Digital Product Idea:** Conceive a digital product that is highly scalable and ideal for selling through online advertising. Examples include an ebook, a comprehensive digital planner, a set of premium templates, or a niche software tool.
 2.  **Online Service Idea:** Devise an online service that can be delivered in a one-to-many format. Examples include a paid webinar series, an interactive online workshop, or group consultation sessions.
-3.  **Online Membership Idea:** Create an idea for a recurring subscription business. Examples include a private community on a platform like Telegram or Discord, or a subscription that provides exclusive content.
+3.  **Online Membership Idea:** Create an idea for a recurring subscription business. This idea must be for a private community on a platform like Telegram or Discord, or a subscription that provides exclusive content.
 
 Target Audience: {{{targetAudience}}}
 Content Theme: {{{contentTheme}}}`,
