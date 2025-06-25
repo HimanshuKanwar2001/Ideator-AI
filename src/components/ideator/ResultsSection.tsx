@@ -17,7 +17,7 @@ interface ResultsSectionProps {
 export function ResultsSection({ ideas, onUpsell, isUpselling, isBlurred }: ResultsSectionProps) {
   return (
     <div className={cn("space-y-8 transition-all duration-500 ease-in-out", isBlurred && "filter blur-sm pointer-events-none opacity-50")}>
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="flex flex-col gap-6">
         <IdeaCard title="Product Idea" description={ideas.productIdea} IconComponent={Package} />
         <IdeaCard title="Service Idea" description={ideas.serviceIdea} IconComponent={Briefcase} />
         <IdeaCard title="Membership Idea" description={ideas.membershipIdea} IconComponent={Users} />
