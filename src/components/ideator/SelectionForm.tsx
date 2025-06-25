@@ -52,7 +52,7 @@ export function SelectionForm({ onSubmit, isSubmitting }: SelectionFormProps) {
           name="targetAudience"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Target Audience</FormLabel>
+              <FormLabel>Whom you wish to sell products to?</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
                 <FormControl>
                   <SelectTrigger>
@@ -76,7 +76,7 @@ export function SelectionForm({ onSubmit, isSubmitting }: SelectionFormProps) {
           name="contentTheme"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Content Theme</FormLabel>
+              <FormLabel>Which type of products you want to sell?</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
                 <FormControl>
                   <SelectTrigger>
