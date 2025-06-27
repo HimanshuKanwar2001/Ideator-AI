@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { SelectionForm } from "@/components/ideator/SelectionForm";
 import { EmailCaptureForm } from "@/components/ideator/EmailCaptureForm";
@@ -9,7 +9,7 @@ import { ResultsSection } from "@/components/ideator/ResultsSection";
 import { LoadingState } from "@/components/ideator/LoadingState";
 import { WhatsappCaptureForm } from "@/components/ideator/WhatsappCaptureForm";
 import type { WhatsappFormValues } from "@/components/ideator/WhatsappCaptureForm";
-import { generateIdeasAction, captureEmailAndDataAction, upsellBlueprintAction, getCountryCodeAction } from "./actions";
+import { generateIdeasAction, captureEmailAndDataAction, upsellBlueprintAction } from "./actions";
 import type { GenerateProductIdeasOutput } from "@/ai/flows/generate-product-ideas";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -51,16 +51,7 @@ export default function IdeatorPage() {
   const [showBlueprintDialog, setShowBlueprintDialog] = useState(false);
   const [blueprintDialogMessage, setBlueprintDialogMessage] = useState("");
   const [showWhatsappDialog, setShowWhatsappDialog] = useState(false);
-  const [countryCode, setCountryCode] = useState<string | null>(null);
   const { toast } = useToast();
-
-  useEffect(() => {
-    const fetchCountryCode = async () => {
-      const code = await getCountryCodeAction();
-      setCountryCode(code);
-    };
-    fetchCountryCode();
-  }, []);
 
   const handleSelectionSubmit = async (data: SelectionFormValues) => {
     setAppState("loadingIdeas");
@@ -212,7 +203,6 @@ export default function IdeatorPage() {
           <WhatsappCaptureForm 
             onSubmit={handleWhatsappSubmit}
             isSubmitting={isUpselling}
-            countryCode={countryCode}
           />
         </DialogContent>
       </Dialog>
