@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2, Send } from "lucide-react";
+import { useEffect } from "react";
 
 const WhatsappFormSchema = z.object({
   whatsappNumber: z.string().min(10, "Please enter a valid phone number with country code."),
@@ -25,15 +26,22 @@ export type WhatsappFormValues = z.infer<typeof WhatsappFormSchema>;
 interface WhatsappCaptureFormProps {
   onSubmit: (data: WhatsappFormValues) => Promise<void>;
   isSubmitting: boolean;
+  countryCode: string | null;
 }
 
-export function WhatsappCaptureForm({ onSubmit, isSubmitting }: WhatsappCaptureFormProps) {
+export function WhatsappCaptureForm({ onSubmit, isSubmitting, countryCode }: WhatsappCaptureFormProps) {
   const form = useForm<WhatsappFormValues>({
     resolver: zodResolver(WhatsappFormSchema),
     defaultValues: {
       whatsappNumber: "",
     },
   });
+
+  useEffect(() => {
+    if (countryCode && !form.getValues().whatsappNumber) {
+      form.setValue("whatsappNumber", countryCode);
+    }
+  }, [countryCode, form]);
 
   return (
     <Form {...form}>

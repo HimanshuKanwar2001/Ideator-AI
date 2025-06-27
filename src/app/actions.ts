@@ -6,6 +6,37 @@ import { z } from 'zod';
 import { generateProductIdeas as aiGenerateProductIdeas, type GenerateProductIdeasOutput, type GenerateProductIdeasInput } from '@/ai/flows/generate-product-ideas';
 import { WEBHOOK_URL, WEBHOOK_URL_TEST } from '@/lib/constants';
 
+export async function getCountryCodeAction(): Promise<string | null> {
+  const ip = headers().get('x-forwarded-for') ?? '127.0.0.1';
+  
+  if (ip === '127.0.0.1' || ip.startsWith('::1')) {
+    return '+1'; // Default for local development
+  }
+
+  try {
+    const response = await fetch(`https://ipapi.co/${ip}/json/`, {
+        signal: AbortSignal.timeout(2000), 
+    });
+    if (!response.ok) {
+        console.error(`GeoIP lookup failed for ${ip}: ${response.status} ${response.statusText}`);
+        return null;
+    }
+    const data = await response.json();
+    if (data.error) {
+        console.error(`GeoIP service error for ${ip}: ${data.reason}`);
+        return null;
+    }
+    return data.country_calling_code || null;
+  } catch (error) {
+    if (error instanceof Error && error.name === 'TimeoutError') {
+        console.error(`GeoIP lookup timed out for IP ${ip}`);
+    } else {
+        console.error(`Error fetching country code for IP ${ip}:`, error);
+    }
+    return null;
+  }
+}
+
 const GenerateIdeasSchema = z.object({
   targetAudience: z.string().min(1, "Target audience is required."),
   contentTheme: z.string().min(1, "Content theme is required."),
