@@ -60,7 +60,7 @@ export function WhatsappCaptureForm({ onSubmit, isSubmitting }: WhatsappCaptureF
           ) : (
             <>
               <Send className="mr-2 h-4 w-4" />
-              Send Blueprint
+              Get Blueprint
             </>
           )}
         </Button>
