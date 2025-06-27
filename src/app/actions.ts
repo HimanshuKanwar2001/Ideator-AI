@@ -132,6 +132,7 @@ const UpsellBlueprintSchema = z.object({
   targetAudience: z.string(),
   contentTheme: z.string(),
   email: z.string().email(),
+  whatsappNumber: z.string().min(1, "WhatsApp number is required."),
   ideas: z.object({
     productIdea: z.string(),
     serviceIdea: z.string(),
@@ -201,7 +202,7 @@ export async function upsellBlueprintAction(
   }
 
   if (successes > 0) {
-    const message = "Your blueprint has been sent to your email! Check your inbox for the details.";
+    const message = "Your blueprint has been sent! Check your WhatsApp for the details.";
     if (failures.length > 0) {
         console.warn(`Partially succeeded in sending upsell webhook data. Failures: ${failures.join('; ')}`);
     }

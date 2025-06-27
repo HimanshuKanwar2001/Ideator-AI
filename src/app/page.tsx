@@ -2,11 +2,13 @@
 "use client";
 
 import { useState } from "react";
-import { z } from "zod"; // Added this line
+import { z } from "zod";
 import { SelectionForm } from "@/components/ideator/SelectionForm";
 import { EmailCaptureForm } from "@/components/ideator/EmailCaptureForm";
 import { ResultsSection } from "@/components/ideator/ResultsSection";
 import { LoadingState } from "@/components/ideator/LoadingState";
+import { WhatsappCaptureForm } from "@/components/ideator/WhatsappCaptureForm";
+import type { WhatsappFormValues } from "@/components/ideator/WhatsappCaptureForm";
 import { generateIdeasAction, captureEmailAndDataAction, upsellBlueprintAction } from "./actions";
 import type { GenerateProductIdeasOutput } from "@/ai/flows/generate-product-ideas";
 import { useToast } from "@/hooks/use-toast";
@@ -19,7 +21,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type AppState = "idle" | "loadingIdeas" | "emailCapture" | "submittingEmail" | "resultsVisible" | "upselling";
 
@@ -42,6 +50,7 @@ export default function IdeatorPage() {
   const [currentEmail, setCurrentEmail] = useState<string | null>(null);
   const [showBlueprintDialog, setShowBlueprintDialog] = useState(false);
   const [blueprintDialogMessage, setBlueprintDialogMessage] = useState("");
+  const [showWhatsappDialog, setShowWhatsappDialog] = useState(false);
   const { toast } = useToast();
 
   const handleSelectionSubmit = async (data: SelectionFormValues) => {
@@ -80,19 +89,25 @@ export default function IdeatorPage() {
   };
 
   const handleUpsell = async () => {
+    setShowWhatsappDialog(true);
+  };
+  
+  const handleWhatsappSubmit = async (data: WhatsappFormValues) => {
     if (!currentSelections || !currentEmail || !generatedIdeas) {
       toast({ variant: "destructive", title: "Error", description: "Missing information for blueprint request." });
       return;
     }
     setAppState("upselling");
+    setShowWhatsappDialog(false);
     try {
       const result = await upsellBlueprintAction({
         ...currentSelections,
         email: currentEmail,
         ideas: generatedIdeas,
+        whatsappNumber: data.whatsappNumber,
       });
        if (result.success) {
-        setBlueprintDialogMessage(result.message || "Your blueprint has been sent to your email!");
+        setBlueprintDialogMessage(result.message || "Your blueprint has been sent! Check your WhatsApp.");
         setShowBlueprintDialog(true);
       } else {
         throw new Error(result.message || "Failed to request blueprint.");
@@ -103,7 +118,7 @@ export default function IdeatorPage() {
       setAppState("resultsVisible");
     }
   };
-  
+
   const isSubmittingSelection = appState === "loadingIdeas";
   const isSubmittingEmail = appState === "submittingEmail";
   const isUpselling = appState === "upselling";
@@ -176,6 +191,21 @@ export default function IdeatorPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={showWhatsappDialog} onOpenChange={setShowWhatsappDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Get Your Blueprint on WhatsApp</DialogTitle>
+            <DialogDescription>
+              Enter your WhatsApp number below and we'll send the blueprint right over.
+            </DialogDescription>
+          </DialogHeader>
+          <WhatsappCaptureForm 
+            onSubmit={handleWhatsappSubmit}
+            isSubmitting={isUpselling}
+          />
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

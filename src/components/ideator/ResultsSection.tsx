@@ -5,7 +5,7 @@ import type { GenerateProductIdeasOutput } from "@/ai/flows/generate-product-ide
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { IdeaCard } from "./IdeaCard";
-import { Package, Briefcase, Users, Sparkles, Loader2 } from "lucide-react";
+import { Package, Briefcase, Users, Send, Loader2 } from "lucide-react";
 
 interface ResultsSectionProps {
   ideas: GenerateProductIdeasOutput;
@@ -26,7 +26,7 @@ export function ResultsSection({ ideas, onUpsell, isUpselling, isBlurred }: Resu
         <div className="text-center mt-8 p-4 md:p-6 border rounded-lg shadow-lg bg-card">
           <h3 className="text-xl md:text-2xl font-bold font-headline mb-3 text-primary">Ready to Launch?</h3>
           <p className="text-muted-foreground mb-6 text-sm md:text-base">
-            Get a complete, step-by-step blueprint to bring these ideas to life! A detailed plan can be generated including market research, feature lists, marketing strategies, and more.
+            Get a complete, step-by-step blueprint to bring these ideas to life! We'll send it directly to your WhatsApp.
           </p>
           <Button 
             onClick={onUpsell} 
@@ -37,12 +37,12 @@ export function ResultsSection({ ideas, onUpsell, isUpselling, isBlurred }: Resu
             {isUpselling ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Generating Blueprint...
+                Please wait...
               </>
             ) : (
               <>
-                <Sparkles className="mr-2 h-5 w-5" />
-                Get Your Blueprint
+                <Send className="mr-2 h-5 w-5" />
+                Get Blueprint on WhatsApp
               </>
             )}
           </Button>
