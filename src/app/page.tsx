@@ -49,7 +49,6 @@ export default function IdeatorPage() {
   const [currentSelections, setCurrentSelections] = useState<SelectionFormValues | null>(null);
   const [currentEmail, setCurrentEmail] = useState<string | null>(null);
   const [showBlueprintDialog, setShowBlueprintDialog] = useState(false);
-  const [blueprintDialogMessage, setBlueprintDialogMessage] = useState("");
   const [showWhatsappDialog, setShowWhatsappDialog] = useState(false);
   const { toast } = useToast();
 
@@ -107,7 +106,6 @@ export default function IdeatorPage() {
         whatsappNumber: data.whatsappNumber,
       });
        if (result.success) {
-        setBlueprintDialogMessage(result.message || "Your blueprint has been sent! Check your WhatsApp.");
         setShowBlueprintDialog(true);
       } else {
         throw new Error(result.message || "Failed to request blueprint.");
@@ -181,12 +179,14 @@ export default function IdeatorPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Blueprint Request Sent!</AlertDialogTitle>
             <AlertDialogDescription>
-              {blueprintDialogMessage}
+              We will send you the blueprint soon on your WhatsApp.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setShowBlueprintDialog(false)}>
-              Close
+            <AlertDialogAction onClick={() => {
+                window.location.href = 'https://superprofile.bio?referralCode=KLTjEC&referralType=creatorReferral&source=supersellreel';
+            }}>
+              Start making your Superprofile now
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
