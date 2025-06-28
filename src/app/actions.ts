@@ -65,7 +65,7 @@ export async function captureEmailAndDataAction(
     return { success: false, message: validatedInput.error.errors.map(e => e.message).join(', ') };
   }
   
-  const payload = { type: 'email_capture', blueprint: 'no', ...validatedInput.data };
+  const payload = { type: 'email_capture', blueprint: 'no', timestamp: new Date().toISOString(), ...validatedInput.data };
   const webhooks = [WEBHOOK_URL, WEBHOOK_URL_TEST].filter(Boolean);
 
   if (webhooks.length === 0) {
@@ -148,7 +148,7 @@ export async function upsellBlueprintAction(
     return { success: false, message: validatedInput.error.errors.map(e => e.message).join(', ') };
   }
 
-  const payload = { type: 'upsell_blueprint', blueprint: 'yes', ...validatedInput.data };
+  const payload = { type: 'upsell_blueprint', blueprint: 'yes', timestamp: new Date().toISOString(), ...validatedInput.data };
   const webhooks = [WEBHOOK_URL, WEBHOOK_URL_TEST].filter(Boolean);
 
   if (webhooks.length === 0) {
